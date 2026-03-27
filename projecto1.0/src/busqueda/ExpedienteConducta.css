@@ -1,0 +1,138 @@
+
+.expediente-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 45px;
+}
+
+
+.expediente-card {
+  width: 100%;
+  max-width: 700px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #d9dbe1;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  animation: fadeIn 0.8s ease;
+}
+
+.expediente-header {
+  height: 60px;
+  background: #0a1a3a;
+}
+
+.expediente-contenido {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 30px;
+  animation: slideUp 0.8s ease;
+}
+
+.expediente-icono {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #0a1a3a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.expediente-icono img {
+  width: 45px;
+  height: 45px;
+}
+
+.expediente-texto h1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 800;
+  color: #0a1a3a;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.expediente-texto p {
+  margin: 5px 0 15px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.expediente-buscador {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.expediente-buscador input {
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  width: 200px;
+  background: white;
+}
+
+.expediente-buscador button {
+  padding: 10px 15px;
+  border-radius: 10px;
+  border: none;
+  background: #4f7cff;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.expediente-buscador button:hover {
+  background: #3a66e0;
+  transform: scale(1.05);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .expediente-contenido {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .expediente-buscador {
+    justify-content: center;
+  }
+
+  .expediente-buscador input {
+    width: 100%;
+  }
+}
+
+
+
+
+
