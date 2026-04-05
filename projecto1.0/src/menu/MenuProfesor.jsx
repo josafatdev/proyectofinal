@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import './MenuProfesor.css';
 import icono from '../assets/icon-icons(2).svg';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -7,8 +8,22 @@ import blueImage from '../assets/blue.png';
 const MenuProfesor = () => {
   const navigate = useNavigate();  // ← CORREGIDO
 
+  const [profesor, setProfesor] = useState(null);
+
+  useEffect(() => {
+    const datos = localStorage.getItem('authUser');
+    if (datos){
+      const usuario = JSON.parse(datos);
+      if (usuario.tipo === 'maestro'){
+        setProfesor(usuario);
+      }
+    }
+  }, []);
+
   const handleCerrarSesion = () => {
     if (confirm('⚠️ ¿Estás a punto de cerrar sesión?')) {
+      localStorage.removeItem('authUser');
+      localStorage.removeItem('estudianteBuscado');
       window.location.href = '/';
     }
   };
@@ -57,7 +72,7 @@ const MenuProfesor = () => {
               />
               <h2>Profesor</h2>
               <br />
-              <h3>Jorge josafat</h3>
+              <h3>{profesor?.nombre || 'Cargando...'}</h3>
             </div>
 
             <br />
