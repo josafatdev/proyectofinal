@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import './ExpedienteConducta.css';
 import icono from '../assets/icon-icons(2).svg';
 import fondo from '../assets/blue.png';
@@ -6,14 +7,50 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const ExpedienteConducta = () => {
   const navigate = useNavigate();
+  const [nie, setNie] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleBuscar = () => {
-    const nie = document.querySelector('input')?.value || '';
-    if (nie) {
-      navigate('/historial-vacio');
-    } else {
+  const handleBuscar = async () => {
+    if (!nie.trim()) {
       alert('Por favor ingresa un NIE');
+      return;
     }
+
+    setLoading(true);
+
+    try {
+      const conexion = await fetch("http://localhost/backend/registroAlumno.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({nie: nie.trim()})
+      });
+
+      const data = await conexion.json();
+
+      if (data.success && data.tipo === "estudiante") {
+        localStorage.setItem('estudianteBuscado', JSON.stringify({
+          tipo: 'estudiante',
+          nombre: data.nombre,
+          apellido: data.apellido,
+          nie: data.nie,
+          grado: data.grado,
+          turno: data.turno
+        }));
+
+        navigate('/historial-vacio');
+
+      } else {
+        alert('NIE no registrado');
+      }
+    } catch (error) {
+      console.error("Error al buscar el estudiante:", error);
+      alert("Error de conexión con el servidor...");
+    } finally {
+      setLoading(false);
+    }
+
   };
 
   // Generar partículas
@@ -91,6 +128,9 @@ const ExpedienteConducta = () => {
 
               <div className="expediente-buscador" style={{ display: 'flex', gap: '10px' }}>
                 <input 
+                  value={nie}
+                  onChange={(e) => setNie(e.target.value)}
+                  disabled={loading}
                   type="text" 
                   placeholder="NIE"
                   style={{
@@ -107,6 +147,7 @@ const ExpedienteConducta = () => {
                 />
                 <button 
                   onClick={handleBuscar}
+                  disabled={loading}
                   style={{
                     padding: '12px 25px',
                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
