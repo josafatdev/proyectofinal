@@ -1,12 +1,29 @@
-import React from "react";
 import "./HistorialDirector.css";
 import Navbar from "./Navbar";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import fondo from '../assets/blue.png';
 
 function HistorialVacio() {
   const navigate = useNavigate();
+  const [estudiante, setEstudiante] = useState(null);
+
+  useEffect(() => {
+    const buscado = localStorage.getItem('estudianteBuscado');
+    if (buscado){
+      setEstudiante(JSON.parse(buscado));
+      return;
+    }
+
+    const auth = localStorage.getItem('authUser');
+    if (auth) {
+      const persona = JSON.parse(auth);
+      if (persona.tipo === 'estudiante'){
+        setEstudiante(persona);
+      }
+    }
+  }, []);
 
   const handleAgregarDemerito = () => {
     navigate("/demeritos");
@@ -77,10 +94,15 @@ function HistorialVacio() {
               </div>
             </div>
             <div className="info-estudiante">
-              <h2>Darlyn Melissa González Cruz</h2>
-              <p><strong>NIE:</strong> 123456789</p>
-              <p><strong>Turno:</strong> Matutino</p>
-              <p><strong>Grado:</strong> Tercer Año Bachillerato Técnico</p>
+              <h2>
+                {estudiante
+                  ? `${estudiante.nombre || ''} ${estudiante.apellido || ''}`.trim()
+                  : 'Cargando estudiante...'
+                }
+              </h2>
+              <p><strong>NIE:</strong> {estudiante?.nie || 'Cargando...'}</p>
+              <p><strong>Turno:</strong> {estudiante?.turno || 'Cargando...'}</p>
+              <p><strong>Grado:</strong> {estudiante?.grado || 'Cargando...'}</p>
             </div>
           </div>
 

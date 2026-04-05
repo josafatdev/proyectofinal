@@ -20,8 +20,20 @@ const LoginButton = ({nie}) => {
       const data = await conexion.json();
 
       if (data.tipo === "estudiante") {
+        localStorage.setItem('authUser', JSON.stringify({
+          tipo: 'estudiante',
+          nombre: data.nombre,
+          apellido: data.apellido,
+          nie: data.nie,
+          grado: data.grado,
+          turno: data.turno
+        }));
          window.location.href = '/menu-alumno';
       } else if (data.tipo === "maestro") {
+        localStorage.setItem('authUser', JSON.stringify({
+          tipo: 'maestro',
+          nombre: data.nombre
+        }));
         window.location.href = '/menu-profesor';
       } else if (data.tipo === "director") {
         window.location.href = '/MenuDirector';
@@ -35,24 +47,6 @@ const LoginButton = ({nie}) => {
       setLoading(false);
     }
     
-   /* 
-    setTimeout(() => {
-      if (usuario === '1' || password === '1') {
-        window.location.href = '/menu-profesor';
-      } 
-      else if (usuario === '2' || password === '2') {
-        window.location.href = '/menu-alumno';
-      }
-      else if (usuario === '3' || password === '3') {
-        window.location.href = '/MenuDirector';
-      }
-      else {
-        alert('Acceso denegado. Debes ingresar el número 1,2 o 3');
-        setLoading(false);
-      }
-    }, 500);
-
-  */
   };
 
   return (
