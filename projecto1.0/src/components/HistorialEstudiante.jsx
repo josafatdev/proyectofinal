@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./HistorialDirector.css";
 import Navbar from "./Navbar";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -6,23 +7,63 @@ import fondo from '../assets/blue.png';
 
 function HistorialEstudiante() {
 
+  const location = useLocation();
+  const navigate = useNavigate();
   const [estudiante, setEstudiante] = useState(null);
+  const [demeritos, setDemeritos] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const buscado = localStorage.getItem('estudianteBuscado');
-    if (buscado){
-      setEstudiante(JSON.parse(buscado));
-      return;
-    }
+    const cargarDatos = async () => {
+      try{
+        const buscado = localStorage.getItem('estudianteBuscado');
+        if (buscado){
+          setEstudiante(JSON.parse(buscado));
+        } else {
+          const datos = localStorage.getItem('authUser');
+          if (datos){
+            const persona = JSON.parse(datos);
+          if (persona.tipo === 'estudiante'){
+            setEstudiante(persona);
+          }
+          }
+        }
 
-    const datos = localStorage.getItem('authUser');
-    if (datos){
-      const persona = JSON.parse(datos);
-      if (persona.tipo === 'estudiante'){
-        setEstudiante(persona);
+        const estData = buscado ? JSON.parse(buscado) : JSON.parse(localStorage.getItem('authUser')||'null');
+        if (estData?.id) {
+          const respuesta = await fetch("http://localhost/backend/obtenerHistorial.php", {
+            method: "POST",
+            headers: {
+              "Content-Type":"application/json"
+            },
+            body: JSON.stringify({
+              id_estudiante: estData.id
+            })
+          });
+
+          const data = await respuesta.json();
+          
+          if (data.success){
+            setDemeritos(data.demeritos);
+          }
+        } 
+      } catch (err) {
+          console.error("Error cargando historial...", err)
+      } finally {
+        setLoading(false);
       }
+    };
+
+    cargarDatos();
+  }, [location.state?.refresh]);
+
+  const handleAgregarOtroDemerito = () => {
+    if (estudiante?.id){
+      navigate("/demeritos", { state: {estudiante}});
+    } else {
+      alert('No se pudo identificar...')
     }
-  }, []);
+  };
   
   const particulas = [];
   for (let i = 0; i < 50; i++) {
@@ -35,6 +76,11 @@ function HistorialEstudiante() {
       opacity: Math.random() * 0.5 + 0.3
     });
   }
+
+  const esPersonal = () => {
+    const auth = JSON.parse(localStorage.getItem('authUser') || 'null');
+    return auth && (auth.tipo === 'maestro' || auth.tipo === 'director');
+  };
 
   return (
     <div 
@@ -101,29 +147,69 @@ function HistorialEstudiante() {
           </div>
 
           <div className="fila-superior">
-            <div className="actividad">
-              <h4>1. Comer en clase</h4>
-              <p>El estudiante estaba comiendo 6 pupusas de frijol con queso mientras sus compañeros estaban exponiendo.</p>
-              <span className="fecha">26 de marzo del 2026, 8:50 AM</span>
-              <p className="maestro">Maestro responsable del reporte: Franklin Barahona</p>
-            </div>
+            {loading ? (
+              <p style={{ textAlign: 'center', padding: '20px',}}>Cargando Historial...</p>
+            ) : demeritos.length > 0 ? (
+              demeritos.map((demerito, index) => (
+                <div key={demerito.id || index} className="actividad" style={{ marginBottom: '25px' }}>
+                  <h4>{index + 1}. {demerito.descripcion}</h4>
+                  <p className="fecha"><strong>Fecha:</strong> {demerito.fecha ? new Date(demerito.fecha).toLocaleDateString('es-SV') : '---'}</p>
+                  <p className="maestro"><strong>Maestro Responsable:</strong> {demerito.responsable}</p>
 
-            <div className="acciones">
-              <h4>Acciones Correctivas</h4>
-              <div className="checklist">
-                <div className="check-item">
-                  <input type="checkbox" />
-                  <span>Barrer el polvo de la cancha.</span>
-                </div>
-                <div className="check-item">
-                  <input type="checkbox" />
-                  <span>Comprar pupusas para todo el grado.</span>
-                </div>
-              </div>
-            </div>
+                {demerito.acciones?.length > 0 && (
+                  <div className="acciones" style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #eee'}}>
+                    <h4 style={{ margin: '0 0 8px', fontSize: '14px',  color: '#666'}}>Acciones Correctivas</h4>
+                    <div className="checklist">
+                    {demerito.acciones.map((accion, i) => (
+                      <div key={i} className="check-item" style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '4px 0'}}>
+                        <input type="checkbox" disabled style={{ width: '16px', height: '16px' }} />
+                        <span>{accion}</span>
+                      </div>
+                    ))}
+                    </div>
+                  </div>
+                )}
+
+                <span className="fecha" style={{ fontSize: '13px', color: '#666', display: 'block', marginTop: '10px' }}>
+                  Registrado: {demerito.fecha_registro ? new Date(demerito.fecha_registro).toLocaleString('es-SV') : ''} 
+                </span>
           </div>
+            ))
+            ) : (
+              <div className="mensaje-vacio" style={{textAlign: 'center', padding: '30px', color: '#666'}}>
+                <p>No hay deméritos registrados</p>
+              </div>
+            )}
+
+            {esPersonal() && estudiante?.id && (
+              <div style={{ textAlign: 'center', marginTop: '30px', paddingTop: '20px', borderTop: '2px dashed #ccc' }}>
+                <button 
+                  onClick={handleAgregarOtroDemerito}
+                  style={{
+                    padding: '12px 30px',
+                    background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '25px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    fontSize: '16px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    transition: 'transform 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                >
+                  ➕ Agregar otro demérito
+                </button>
+              </div>
+            )}
+
         </div>
       </div>
+    </div>
 
       <style>
         {`

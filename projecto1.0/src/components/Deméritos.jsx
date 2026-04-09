@@ -1,9 +1,53 @@
-import React from "react";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./Deméritos.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import fondo from '../assets/blue.png';
 
 function Demeritos() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [estudiante, setEstudiante] = useState(null);
+  const [descripcion, setDescripcion] = useState('');
+  const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
+  const [responsable, setResponsable] = useState('');
+
+  useEffect(() => {
+    const estudia = location.state?.estudiante || JSON.parse(
+      localStorage.getItem('estudianteBuscado')||'null'
+    );
+
+    if (estudia){ 
+      setEstudiante(estudia);
+    }
+    const profeso = JSON.parse(localStorage.getItem('authUser')||'null');
+    if (profeso?.tipo === 'maestro'){
+      setResponsable(`${profeso.nombre}`.trim());
+    }
+  }, [location.state]);
+
+  const handleSiguiente = () => {
+    if (!descripcion.trim() || !responsable.trim()){
+      alert('Completa todos los campos...');
+      return;
+    }
+
+    if (!estudiante?.id){
+      alert('Error: No se identifico al estudiante');
+      return;
+    }
+
+    navigate("/registro-demeritos", {
+      state: {
+        estudiante,
+        demeritoData: {
+          descripcion: descripcion.trim(),
+          fecha,
+          responsable: responsable.trim()
+        }
+      }
+    });
+  };
   
   const particulas = [];
   for (let i = 0; i < 50; i++) {
@@ -65,20 +109,34 @@ function Demeritos() {
 
             <div className="field">
               <label>Descripción</label>
-              <input type="text" placeholder="Describe el problema..." />
+              <input 
+                type="text" 
+                placeholder="Describe el problema..."
+                value={descripcion}
+                onChange={(e) => setDescripcion(e.target.value)}
+              />
             </div>
 
             <div className="field">
               <label>Fecha y Hora</label>
-              <input type="text" placeholder="dd / mm / aaaa , -- : --" />
+              <input 
+                type="date"
+                value={fecha}
+                onChange={(e) => setFecha(e.target.value)} 
+              />
             </div>
 
             <div className="field">
               <label>Maestro Responsable</label>
-              <input type="text" placeholder="Encargado del reporte..." />
+              <input 
+                type="text"
+                placeholder="Encargado del reporte..." 
+                value={responsable}
+                onChange={(e) => setResponsable(e.target.value)}
+              />
             </div>
 
-            <button className="btn">Siguiente</button>
+            <button onClick={handleSiguiente} className="btn">Siguiente</button>
           </div>
         </div>
       </div>

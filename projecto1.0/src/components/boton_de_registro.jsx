@@ -22,20 +22,29 @@ const LoginButton = ({nie}) => {
       if (data.tipo === "estudiante") {
         localStorage.setItem('authUser', JSON.stringify({
           tipo: 'estudiante',
+          id: data.id,
           nombre: data.nombre,
           apellido: data.apellido,
           nie: data.nie,
           grado: data.grado,
-          turno: data.turno
+          turno: data.turno,
+          tiene_demeritos: data.tiene_demeritos,
+          total_demeritos: data.total_demeritos
         }));
-         window.location.href = '/menu-alumno';
+         window.location.href = data.tiene_demeritos ? '/historial-estudiante': '/historial-vacio';
       } else if (data.tipo === "maestro") {
         localStorage.setItem('authUser', JSON.stringify({
           tipo: 'maestro',
+          id: data.id,
           nombre: data.nombre
         }));
         window.location.href = '/menu-profesor';
       } else if (data.tipo === "director") {
+        localStorage.setItem('authUser', JSON.stringify({
+          tipo: 'director',
+          id: data.id,
+          nombre: data.nombre
+        }));
         window.location.href = '/MenuDirector';
       } else {
         alert('¡Cotraseña Incorrecta!');
@@ -44,6 +53,7 @@ const LoginButton = ({nie}) => {
     } catch (error) {
       console.error(error);
       alert("Error en el servidor");
+    } finally {
       setLoading(false);
     }
     
@@ -52,7 +62,7 @@ const LoginButton = ({nie}) => {
   return (
     <div style={{ display: 'flex', justifyContent: 'center' }}>
       <button
-        onClick={handleLogin}
+        onClick={handleLogin} disabled={loading}
         style={{
           width: '80%',
           padding: '18px 12px',

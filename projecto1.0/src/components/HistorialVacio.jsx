@@ -26,7 +26,7 @@ function HistorialVacio() {
   }, []);
 
   const handleAgregarDemerito = () => {
-    navigate("/demeritos");
+    navigate("/demeritos", { state: {estudiante} });
   };
 
   // Generar partículas
