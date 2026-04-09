@@ -1,9 +1,81 @@
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './RegistroDemeritos.css';
 import fondo from '../assets/blue.png';
 import tuxImage from '../assets/tux.png';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function RegistroDemeritos() {
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [estudiante, setEstudiante] = useState(null);
+  const [demeritoData, setDemeritoData] = useState(null);
+  const [acciones, setAcciones] = useState([]);
+  const [nuevaAccion, setNuevaAccion] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const { estudiante, demeritoData } = location.state || {};
+
+    if (estudiante && demeritoData) {
+      setEstudiante(estudiante);
+      setDemeritoData(demeritoData);
+    } else {
+      const estudia = JSON.parse(localStorage.getItem('estudianteBuscado')||'null');
+      if (estudia){
+        setEstudiante(estudia);
+      } else {
+        navigate('/expediente-conducta');
+      }
+    }
+  }, [location.state, navigate]);
+
+  const handleInsertarAccion = () => {
+    if (nuevaAccion.trim() && !acciones.includes(nuevaAccion.trim())){
+      setAcciones([...acciones, nuevaAccion.trim()]);
+      setNuevaAccion('');
+    }
+  };
+
+  const handleTerminar = async () => {
+    if (!estudiante?.id || !demeritoData) {
+      alert('Error: Datos Incompletos');
+      return;
+    }
+
+    setLoading(true);
+
+    try{
+      const respuesta = await fetch("http://localhost/backend/agregarDemerito.php", {
+        method: "POST",
+        headers: {
+          "Content-Type":"application/json"
+        },
+        body: JSON.stringify({
+          id_estudiante: estudiante.id,
+          descripcion: demeritoData.descripcion,
+          fecha: demeritoData.fecha,
+          responsable: demeritoData.responsable,
+          acciones: acciones
+        })
+      });
+
+      const data = await respuesta.json();
+      if (data.success) {
+        localStorage.removeItem('estudianteBuscado');
+        navigate('/historial-estudiante', { replace: true, state: { refresh: true } });
+      } else {
+        alert('Error: ' + (data.error || 'No se pudo guardar'));
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error de Conexion');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Generar partículas UNA SOLA VEZ
   const particulas = [];
   for (let i = 0; i < 50; i++) {
@@ -64,12 +136,20 @@ export default function RegistroDemeritos() {
           <div className="label">Acciones Correctivas:</div>
 
           <div className="input-group">
-            <input type="text" placeholder=" 📏  Acciones para corregir el demérito..." />
-            <button id="insert">Insertar</button>
+            <input 
+              type="text" 
+              placeholder=" 📏  Acciones para corregir el demérito..." 
+              value={nuevaAccion}
+              onChange={(e) => setNuevaAccion(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleInsertarAccion()}
+            />
+            <button id="insert" onClick={handleInsertarAccion}>Insertar</button>
           </div>
 
           <div className="btn-finalizar">
-            <button>Terminar</button>
+            <button onClick={handleTerminar} disabled={loading}>
+              {loading ? 'Guardando...' : 'Terminar'}
+            </button>
           </div>
 
           <img src={tuxImage} alt="tux" className="pinguino" />

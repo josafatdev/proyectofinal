@@ -19,7 +19,7 @@ const ExpedienteConducta = () => {
     setLoading(true);
 
     try {
-      const conexion = await fetch("http://localhost/backend/registroAlumno.php", {
+      const conexion = await fetch("http://localhost/backend/consultarDemeritos.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -32,14 +32,18 @@ const ExpedienteConducta = () => {
       if (data.success && data.tipo === "estudiante") {
         localStorage.setItem('estudianteBuscado', JSON.stringify({
           tipo: 'estudiante',
+          id: data.id,
           nombre: data.nombre,
           apellido: data.apellido,
           nie: data.nie,
           grado: data.grado,
-          turno: data.turno
+          seccion: data.seccion,
+          turno: data.turno,
+          tiene_demeritos: data.tiene_demeritos, 
+          total_demeritos: data.total_demeritos
         }));
 
-        navigate('/historial-vacio');
+        navigate(data.tiene_demeritos ? '/historial-estudiante' : '/historial-vacio');
 
       } else {
         alert('NIE no registrado');
