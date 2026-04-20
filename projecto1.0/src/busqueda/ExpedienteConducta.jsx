@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import './ExpedienteConducta.css';
 import icono from '../assets/icon-icons(2).svg';
 import fondo from '../assets/blue.png';
@@ -9,6 +9,23 @@ const ExpedienteConducta = () => {
   const navigate = useNavigate();
   const [nie, setNie] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const particulasRef = useRef(null);
+  if (!particulasRef.current) {
+    const particulas = [];
+    for (let i = 0; i < 50; i++) {
+      particulas.push({
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        size: Math.random() * 5 + 2,
+        duration: Math.random() * 8 + 6,
+        delay: Math.random() * 5,
+        opacity: Math.random() * 0.5 + 0.3
+      });
+    }
+    particulasRef.current = particulas;
+  }
+  const particulas = particulasRef.current;
 
   const handleBuscar = async () => {
     if (!nie.trim()) {
@@ -57,19 +74,6 @@ const ExpedienteConducta = () => {
 
   };
 
-  // Generar partículas
-  const particulas = [];
-  for (let i = 0; i < 50; i++) {
-    particulas.push({
-      left: Math.random() * 100,
-      top: Math.random() * 100,
-      size: Math.random() * 5 + 2,
-      duration: Math.random() * 8 + 6,
-      delay: Math.random() * 5,
-      opacity: Math.random() * 0.5 + 0.3
-    });
-  }
-
   return (
     <div 
       className="position-relative vh-100 overflow-hidden"
@@ -110,7 +114,7 @@ const ExpedienteConducta = () => {
         ))}
       </div>
 
-      {/* Contenido principal - tu diseño original */}
+      {/* Contenido principal */}
       <div className="position-relative d-flex justify-content-center align-items-center min-vh-100 p-4" style={{ zIndex: 2 }}>
         <div className="expediente-card" style={{ 
           background: 'rgba(255, 255, 255, 0.95)',
