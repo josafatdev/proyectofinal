@@ -20,6 +20,8 @@ const LoginButton = ({nie}) => {
       const data = await conexion.json();
 
       if (data.tipo === "estudiante") {
+        localStorage.removeItem('estudianteBuscado');
+
         localStorage.setItem('authUser', JSON.stringify({
           tipo: 'estudiante',
           id: data.id,

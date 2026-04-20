@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import fondo from '../assets/blue.png';
+import tuxEscribiendo from '../assets/TuxEscribiendo.gif';
 
 function HistorialVacio() {
   const navigate = useNavigate();
@@ -24,6 +25,11 @@ function HistorialVacio() {
       }
     }
   }, []);
+
+  const esPersonal = () => {
+    const auth = JSON.parse(localStorage.getItem('authUser') || 'null');
+    return auth && (auth.tipo === 'maestro' || auth.tipo === 'director');
+  };
 
   const handleAgregarDemerito = () => {
     navigate("/demeritos", { state: {estudiante} });
@@ -108,10 +114,52 @@ function HistorialVacio() {
 
           <div className="historial-vacio-contenido">
             <div className="mensaje-vacio">
-              <p>No hay deméritos registrados</p>
-              <button className="btnn" onClick={handleAgregarDemerito}>
-                Agregar Demérito
+              <p><b>No hay deméritos registrados</b></p>
+
+              <img 
+                src={tuxEscribiendo} 
+                alt="Tux escribiendo" 
+                className="tux-escritura"
+                style={{
+                  width: '150px',
+                  height: 'auto',
+                  margin: '10px auto',
+                  display: 'block',
+                  borderRadius: '12px',
+                  padding: '10px'
+                }}
+              />
+
+              {esPersonal() && (
+              <button 
+                className="btn-agregar-demerito" 
+                onClick={handleAgregarDemerito}
+                style={{
+                  background: 'linear-gradient(135deg, #3b5cee 0%, #9f57e7 100%)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '12px 28px',
+                  borderRadius: '40px',
+                  fontSize: '15px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  marginTop: '18px',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                  e.currentTarget.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.6)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)';
+                }}
+              >
+                + Agregar Demérito
               </button>
+              )}
+
             </div>
           </div>
         </div>
@@ -140,6 +188,14 @@ function HistorialVacio() {
               transform: translate(0, 0) scale(1);
               opacity: 0.2;
             }
+          }
+
+          .tux-escritura {
+            transition: transform 0.3s ease;
+          }
+          
+          .tux-escritura:hover {
+            transform: scale(1.05);
           }
         `}
       </style>

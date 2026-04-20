@@ -49,21 +49,49 @@ const PantallaInicio = () => {
   return (
     <div className="position-relative vh-100 d-flex justify-content-center align-items-center overflow-hidden"
          style={{
-           backgroundImage: `url(${blueImage})`,
-           backgroundSize: 'cover',
-           backgroundPosition: 'center',
-           backgroundRepeat: 'no-repeat'
+           position: 'relative',
+           backgroundColor: '#0a1f44'
          }}>
 
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundImage: `url(${blueImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          filter: 'blur(4px)',        
+          transform: 'scale(1.05)',    
+          zIndex: 0
+        }}
+      />
+
       <canvas ref={canvasRef} className="position-absolute top-0 start-0 w-100 h-100"
-              style={{ pointerEvents: 'none', opacity: 0.4, zIndex: 0 }} />
+              style={{ pointerEvents: 'none', opacity: 0.4, zIndex: 1 }} />
+
+      {/* Capa oscura (mejora contraste del texto) */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(0, 0, 0, 0.1)',
+          zIndex: 2
+        }}
+      />
       
-      {/* Formulario (capa media) */}
-      <div className="position-relative" style={{ zIndex: 1 }}>
+      {/* Formulario */}
+      <div className="position-relative" style={{ zIndex: 3 }}>
         <LoginForm />
       </div>
       
-      {/* Imagen Tux ENCIMA del formulario */}
+      {/* Imagen Tux */}
       <img 
         src={tuxImage}
         alt="Tux"
